@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from src.manager import ENVS
+from src.common import types
 
 POSTGRES_DSN = f"{ENVS.GENERAL.CURRENT_DB}+{ENVS.POSTGRESQL.DRIVER}://{ENVS.POSTGRESQL.USERNAME}:{ENVS.POSTGRESQL.PASSWORD}@{ENVS.POSTGRESQL.HOST}:{ENVS.POSTGRESQL.PORT}/{ENVS.POSTGRESQL.DATABASE}"
 
@@ -20,4 +21,5 @@ class BaseModel(DeclarativeBase, MappedAsDataclass):
     type_annotation_map = {
         datetime: sql_types.TIMESTAMP(timezone=True),
         # CHAR(26) for storing ULID.
+        types.FileId: sql_types.UUID,
     }
