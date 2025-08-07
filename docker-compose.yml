@@ -1,0 +1,18 @@
+# This file is for DevOps, don't touch it! :)
+
+services:
+
+  dms-api-subjects:
+    env_file:
+      - "${ENV_FILE_NAME}"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      ENV_FILE_NAME: "${ENV_FILE_NAME}"
+    volumes:
+      - .:/app
+    ports:
+      - "${UVICORN_SERVER__PORT}:${UVICORN_SERVER__PORT}"
+    restart: on-failure
+

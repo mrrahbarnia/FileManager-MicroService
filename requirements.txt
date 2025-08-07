@@ -1,0 +1,28 @@
+# - Do not include packages which is for test or other purposes in this file
+# utils @ git+https://github.com/hacknitive/utils.git@v0.0.16
+
+# - Lets these two packages always be installed for fastapi 
+uvloop 
+httptools
+
+
+# - Always use the last version of packages.
+# - Please release the last part of the version which is for bug patching
+fastapi==0.115.*
+uvicorn==0.34.*
+pydantic==2.10.*
+pydantic-settings==2.7.*
+asyncpg==0.30.*
+psycopg2-binary==2.9.*
+orjson==3.10.*
+aiohttp==3.11.*
+python-ulid==3.0.*
+pyjwt==2.10.*
+cryptography==45.0.*
+# Always store logs in json format
+python-json-logger==3.3.*
+SQLAlchemy==2.0.42
+greenlet==3.2.3
+alembic==1.16.4
+python-multipart==0.0.20
+aiobotocore==2.23.2
