@@ -1,11 +1,9 @@
 import os
 from uuid import uuid4
 
-from typing import Annotated, TypedDict, BinaryIO
+from typing import Annotated, BinaryIO
 from fastapi import UploadFile, HTTPException
 from pydantic import AfterValidator
-
-from src.common.http_exception import FileMustHaveNameException
 
 
 def strip_str(s: str) -> str:
@@ -15,25 +13,25 @@ def strip_str(s: str) -> str:
 StrippedStr = Annotated[str, AfterValidator(strip_str)]
 
 
-class ImageDict(TypedDict):
-    image: UploadFile
-    allowable_extensions: list[str]
-    max_size: int
-    extensions_exc: HTTPException
-    max_size_exc: HTTPException
+UniqueFileNameWithExt = str
+FileBinary = BinaryIO
+FileSize = int
+FileExtension = str
 
 
-def validate_images_and_return_unique_names(
-    images: list[ImageDict],
-) -> list[tuple[str, BinaryIO]]:
-    image_unique_names: list[tuple[str, BinaryIO]] = []
-    for index, image in enumerate(images):
-        if image["image"].filename:
-            image_ext = os.path.splitext(image["image"].filename)[1]
-            unique_name_with_ext = f"{uuid4()}{image_ext}"
-            image_unique_names.append((f"{unique_name_with_ext}", image["image"].file))
-        else:
-            raise FileMustHaveNameException(
-                data={"image": f"File number {index} must have name."}
-            )
-    return image_unique_names
+def validate_images_and_return_meta_data(
+    file: UploadFile,
+    allowable_extensions: list[str],
+    max_size: int,
+    extensions_exc: HTTPException,
+    max_size_exc: HTTPException,
+) -> tuple[UniqueFileNameWithExt, FileBinary, FileSize, FileExtension]:
+    file_ext = os.path.splitext(file.filename)[1]  # type: ignore
+    if file_ext not in allowable_extensions:
+        raise extensions_exc
+    unique_name_with_ext = f"{uuid4()}{file_ext}"
+    if file_size := file.size:
+        if file_size > max_size:
+            raise max_size_exc
+    assert file_size is not None
+    return unique_name_with_ext, file.file, file_size, file_ext

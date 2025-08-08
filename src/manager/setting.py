@@ -20,7 +20,11 @@ class _ENVS(BaseModel):
     GENERAL: schemas.GeneralSchema = schemas.GeneralSchema()  # type: ignore
     POSTGRESQL: schemas.PostgreSQLSchema = schemas.PostgreSQLSchema()  # type: ignore
     S3: schemas.S3Schema = schemas.S3Schema()  # type: ignore
-    VALIDATION: schemas.ValidationSchema = schemas.ValidationSchema()  # type: ignore
+    MAX_SIZE_VALIDATION: schemas.MaxSizeSchema = schemas.MaxSizeSchema()  # type: ignore
+    ALLOWABLE_EXTENSTION_VALIDATION: schemas.AllowableExtenstionSchema = (
+        schemas.AllowableExtenstionSchema()
+    )  # type: ignore
+    ENDPOINT: schemas.EndpointSchema = schemas.EndpointSchema()  # type: ignore
 
 
 @lru_cache

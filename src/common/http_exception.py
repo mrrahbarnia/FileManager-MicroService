@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 
 from src.manager import ENVS, ENVIRONMENT
 
@@ -32,7 +32,7 @@ class UnexpectedError(AppBaseException):
     def __init__(self, data: str, message: str = "Unexpected Error."):
         super().__init__(
             message=message,
-            status_code=500,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             success=False,
             data=data,
         )
@@ -42,7 +42,7 @@ class S3StorageException(AppBaseException):
     def __init__(self, data: str, message: str = "S3 storage error."):
         super().__init__(
             message=message,
-            status_code=500,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             success=False,
             data=data,
         )
@@ -52,7 +52,7 @@ class DBError(AppBaseException):
     def __init__(self, data: dict = {}, message: str = "DB error."):
         super().__init__(
             message=message,
-            status_code=500,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             success=False,
             data=data,
         )
@@ -62,7 +62,7 @@ class EntityNotFoundException(AppBaseException):
     def __init__(self, data: dict, message: str = "Entity not found."):
         super().__init__(
             message=message,
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             success=False,
             data=data,
         )
@@ -72,17 +72,17 @@ class DuplicateEntityException(AppBaseException):
     def __init__(self, data: dict, message: str = "Duplicate entity."):
         super().__init__(
             message=message,
-            status_code=400,
+            status_code=status.HTTP_409_CONFLICT,
             success=False,
             data=data,
         )
 
 
-class FileMustHaveNameException(AppBaseException):
-    def __init__(self, data: dict, message: str = "File must have name."):
+class FileError(AppBaseException):
+    def __init__(self, data: str, message: str = "Something wrong with file metadata."):
         super().__init__(
             message=message,
-            status_code=400,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             success=False,
             data=data,
         )
@@ -92,7 +92,7 @@ class NotAllowedFileExtensionsException(AppBaseException):
     def __init__(self, data: dict, message: str = "Not supported file extensions."):
         super().__init__(
             message=message,
-            status_code=415,
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
             success=False,
             data=data,
         )
@@ -102,7 +102,7 @@ class MaxFileSizeExceedException(AppBaseException):
     def __init__(self, data: dict, message: str = "Max file size exceeded."):
         super().__init__(
             message=message,
-            status_code=413,
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             success=False,
             data=data,
         )
