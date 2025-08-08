@@ -1,3 +1,5 @@
 1-Make type field in database ENUM when the entire file states become more stable
 
 2-User ID may added to file table for endpoints like "/files/me", etc
+
+3-Whenever a new file type added, just add the new type into .env and also update FileTypeEnum in /src/common/types

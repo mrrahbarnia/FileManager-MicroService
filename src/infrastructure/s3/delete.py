@@ -10,7 +10,7 @@ from src.infrastructure.exceptions import S3Error
 logger = logging.getLogger(__name__)
 
 
-async def delete_from_s3(filename: str):
+async def delete_from_s3(filename: str) -> None:
     try:
         session = get_session()
         async with session.create_client(

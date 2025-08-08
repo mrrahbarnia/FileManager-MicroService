@@ -1,6 +1,7 @@
-from typing import Sequence
+from typing import Sequence, Any
 
 import sqlalchemy as sa
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from src.common import types, http_exception as exc
@@ -22,9 +23,21 @@ class PostgresRepository:
             conditions.append(
                 db_models.File.name.ilike(f"%{filter_qeury.name__icontain}%")
             )
+        if filter_qeury.file_type:
+            conditions.append(db_models.File.type == filter_qeury.file_type)
 
         limit, offset = filter_qeury.to_limit_offset()
-        stmt = sa.select(db_models.File).where(*conditions).limit(limit).offset(offset)
+        stmt = (
+            sa.select(db_models.File)
+            .where(*conditions)
+            .order_by(
+                db_models.File.created_at.desc()
+                if filter_qeury.sort_mode == "DESC"
+                else db_models.File.created_at.asc()
+            )
+            .limit(limit)
+            .offset(offset)
+        )
         counter_stmt = sa.select(sa.func.count(stmt.c.id))
         async with self._session.begin() as session:
             result = (await session.execute(stmt)).tuples().all()
@@ -60,5 +73,16 @@ class PostgresRepository:
     async def get_file_by_name(self, name: str) -> tuple[db_models.File] | None:
         stmt = sa.select(db_models.File).where(db_models.File.name == name).limit(1)
 
+        async with self._session.begin() as session:
+            return (await session.execute(stmt)).tuples().first()
+
+    async def delete_file(
+        self, file_id: types.FileId
+    ) -> tuple[types.FileId, str] | None:
+        stmt = (
+            sa.delete(db_models.File)
+            .where(db_models.File.id == file_id)
+            .returning(db_models.File.id, db_models.File.file_name)
+        )
         async with self._session.begin() as session:
             return (await session.execute(stmt)).tuples().first()

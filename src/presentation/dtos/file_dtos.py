@@ -14,6 +14,7 @@ class FileBase(BaseModel):
     name: str
     size: int
     extension: str
+    type: types.FileTypeEnum
 
     @field_serializer("url", mode="plain")
     def serialize_logo(self, value: str | None) -> str | None:
@@ -26,6 +27,7 @@ class FileRead(FileBase): ...
 
 
 class FileFilterQuery(PaginationSchema):
+    file_type: types.FileTypeEnum | None = None
     name__icontain: Annotated[
         StrippedStr | None,
         Field(

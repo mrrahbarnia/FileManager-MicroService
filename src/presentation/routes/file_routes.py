@@ -30,7 +30,7 @@ router = APIRouter()
                 }
             }
         },
-        404: {
+        409: {
             "content": {
                 "application/json": {
                     "example": {
@@ -124,4 +124,60 @@ async def list_files(
         status_code=status.HTTP_200_OK,
         message="Files fetched successfully.",
         data=result,
+    )
+
+
+@router.delete(
+    "/{file_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=AppResponse[None],
+    responses={
+        200: {
+            "content": {
+                "application/json": {
+                    "example": {
+                        "success": True,
+                        "status_code": 200,
+                        "message": "File deleted successfully.",
+                        "data": None,
+                    }
+                }
+            }
+        },
+        404: {
+            "content": {
+                "application/json": {
+                    "example": {
+                        "success": False,
+                        "status_code": 404,
+                        "message": "Entity not found.",
+                        "data": {"file_id": "There is no file with the provided ID."},
+                    }
+                }
+            }
+        },
+        500: {
+            "content": {
+                "application/json": {
+                    "example": {
+                        "success": False,
+                        "status_code": 500,
+                        "message": "Unexpected Error.",
+                        "data": {},
+                    }
+                }
+            }
+        },
+    },
+)
+async def delete_file(
+    file_id: types.FileId,
+    repository: Annotated[PostgresRepository, Depends(get_postgres_repo)],
+) -> AppResponse[None]:
+    await Service(repository).delete_file(file_id)
+    return AppResponse[None](
+        success=True,
+        status_code=status.HTTP_200_OK,
+        message="File deleted successfully.",
+        data=None,
     )
