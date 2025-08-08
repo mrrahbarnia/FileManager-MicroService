@@ -1,7 +1,11 @@
-from pydantic import BaseModel, field_serializer
+from typing import Annotated
+
+from pydantic import BaseModel, Field, field_serializer
 
 from src.manager import ENVS
 from src.common import types
+from src.common.pagination import PaginationSchema
+from src.common.utils import StrippedStr
 
 
 class FileBase(BaseModel):
@@ -19,3 +23,18 @@ class FileBase(BaseModel):
 
 
 class FileRead(FileBase): ...
+
+
+class FileFilterQuery(PaginationSchema):
+    name__icontain: Annotated[
+        StrippedStr | None,
+        Field(
+            description="File name must contain this query parameter (case-insensitive)."
+        ),
+    ] = None
+    name__exact: Annotated[
+        StrippedStr | None,
+        Field(
+            description="File name must be exactly this query parameter (case-sensitive)."
+        ),
+    ] = None

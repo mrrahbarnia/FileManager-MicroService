@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, status, Depends, Form, File, UploadFile
+from fastapi import APIRouter, UploadFile, status, Depends, Form, File, Query
 
 from src.common.http_response import AppResponse
 from src.common import types
@@ -91,5 +91,37 @@ async def create_file(
         success=True,
         status_code=status.HTTP_201_CREATED,
         message="File created successfully.",
+        data=result,
+    )
+
+
+@router.get(
+    "",
+    status_code=status.HTTP_200_OK,
+    response_model=AppResponse[PaginationResponseSchema[list[dtos.FileRead]]],
+    responses={
+        500: {
+            "content": {
+                "application/json": {
+                    "example": {
+                        "success": False,
+                        "status_code": 500,
+                        "message": "Unexpected Error.",
+                        "data": {},
+                    }
+                }
+            }
+        },
+    },
+)
+async def list_files(
+    filter_query: Annotated[dtos.FileFilterQuery, Query()],
+    repository: Annotated[PostgresRepository, Depends(get_postgres_repo)],
+) -> AppResponse[PaginationResponseSchema[list[dtos.FileRead]]]:
+    result = await Service(repository).list_files(filter_query)
+    return AppResponse[PaginationResponseSchema[list[dtos.FileRead]]](
+        success=True,
+        status_code=status.HTTP_200_OK,
+        message="Files fetched successfully.",
         data=result,
     )

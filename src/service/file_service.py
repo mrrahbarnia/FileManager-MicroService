@@ -17,6 +17,34 @@ class FileService:
     def __init__(self, repository: RepositoryInterface) -> None:
         self._repository = repository
 
+    async def list_files(
+        self, filter_qeury: dtos.FileFilterQuery
+    ) -> PaginationResponseSchema[list[dtos.FileRead]]:
+        try:
+            files, count = await self._repository.get_all_files_with_counter(
+                filter_qeury
+            )
+            return PaginationResponseSchema(
+                pagination=PaginationResponse(
+                    current_page=filter_qeury.page_number,
+                    page_size=filter_qeury.page_size,
+                    total=count,
+                ),
+                data=[
+                    dtos.FileRead(
+                        id=file[0].id,
+                        url=file[0].file_name,
+                        name=file[0].name,
+                        size=file[0].size,
+                        extension=file[0].extension,
+                    )
+                    for file in files
+                ],
+            )
+        except Exception as ex:
+            logger.critical(ex)
+            raise exc.UnexpectedError(data=str(ex))
+
     async def create_file(self, name: str, type: types.FileTypeEnum, file: UploadFile):
         try:
             max_size = 0
