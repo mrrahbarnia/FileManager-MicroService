@@ -10,6 +10,8 @@ class RepositoryInterface(Protocol):
         self, filter_qeury: dtos.FileFilterQuery
     ) -> tuple[Sequence[tuple[db_models.File]], int]: ...
 
+    async def get_file_by_uuid(self, file_uuid: str) -> types.FileId | None: ...
+
     async def create_file(
         self,
         name: str,

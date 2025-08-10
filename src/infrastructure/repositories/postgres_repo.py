@@ -1,7 +1,6 @@
-from typing import Sequence, Any
+from typing import Sequence
 
 import sqlalchemy as sa
-from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from src.common import types, http_exception as exc
@@ -12,6 +11,15 @@ from src.presentation.dtos import file_dtos as dtos
 class PostgresRepository:
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]) -> None:
         self._session = session_maker
+
+    async def get_file_by_uuid(self, file_uuid: str) -> types.FileId | None:
+        stmt = (
+            sa.select(db_models.File.id)
+            .where(db_models.File.file_name == file_uuid)
+            .limit(1)
+        )
+        async with self._session.begin() as session:
+            return await session.scalar(stmt)
 
     async def get_all_files_with_counter(
         self, filter_qeury: dtos.FileFilterQuery

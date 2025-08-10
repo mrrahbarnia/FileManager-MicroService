@@ -1,14 +1,20 @@
 from typing import Annotated
+import logging
 
 from fastapi import APIRouter, UploadFile, status, Depends, Form, File, Query
+from fastapi.responses import StreamingResponse
 
 from src.common.http_response import AppResponse
+from src.common import http_exception as exc
 from src.common import types
 from src.common.pagination import PaginationResponseSchema
 from src.presentation.dependencies import get_postgres_repo
 from src.presentation.dtos import file_dtos as dtos
 from src.infrastructure.repositories.postgres_repo import PostgresRepository
+from src.infrastructure.s3 import file_stream_generator_from_s3
 from src.service import FileService as Service
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -180,4 +186,17 @@ async def delete_file(
         status_code=status.HTTP_200_OK,
         message="File deleted successfully.",
         data=None,
+    )
+
+
+@router.get("/{file_uuid}", status_code=status.HTTP_200_OK)
+async def stream_file(
+    file_uuid: str,
+    repository: Annotated[PostgresRepository, Depends(get_postgres_repo)],
+):
+    await Service(repository).stream_file(file_uuid)
+    return StreamingResponse(
+        file_stream_generator_from_s3(file_uuid),  # type: ignore
+        media_type="application/octet-stream",
+        headers={"Content-Disposition": f"attachment; filename={file_uuid}"},
     )

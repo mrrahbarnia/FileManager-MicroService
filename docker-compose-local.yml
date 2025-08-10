@@ -1,7 +1,7 @@
 # docker compose -f docker-compose-local.yml up
 
 services:
-  app:
+  ms-filemanager:
     env_file:
       - "${ENV_FILE_NAME}"
     build:
@@ -13,6 +13,8 @@ services:
       - .:/app
     ports:
       - "${UVICORN_SERVER__PORT}:${UVICORN_SERVER__PORT}"
+    networks:
+      - my_shared_network
 
   db:
     image: postgres:17.4
@@ -25,17 +27,21 @@ services:
       - "${POSTGRESQL__PORT}:${POSTGRESQL__PORT}"
     volumes:
       - file-manager-postgres_data:/var/lib/postgresql/data
+    networks:
+      - my_shared_network
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin_container
+    container_name: pgadmin_container2
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "8080:80"
+      - "8081:80"
     depends_on:
       - db
+    networks:
+      - my_shared_network
   
   minio:
     image: bitnami/minio:2024.5.1
@@ -49,8 +55,14 @@ services:
       - "${S3__CONSOLE_PORT_NUMBER}:${S3__CONSOLE_PORT_NUMBER}"
     volumes:
       - file-manager-minio-data:/bitnami/minio/data
+    networks:
+      - my_shared_network
 
-name: ms-file-manager
+# name: ms-file-manager
 volumes:
   file-manager-postgres_data:
   file-manager-minio-data:
+
+networks:
+  my_shared_network:
+    external: true

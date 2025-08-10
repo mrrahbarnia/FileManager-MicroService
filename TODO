@@ -3,3 +3,5 @@
 2-User ID may added to file table for endpoints like "/files/me", etc
 
 3-Whenever a new file type added, just add the new type into .env and also update FileTypeEnum in /src/common/types
+
+4-Added CORS

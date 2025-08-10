@@ -1,8 +1,7 @@
-# This file is for DevOps, don't touch it! :)
+# docker compose -f docker-compose-local.yml up
 
 services:
-
-  dms-api-subjects:
+  ms-filemanager:
     env_file:
       - "${ENV_FILE_NAME}"
     build:
@@ -14,5 +13,32 @@ services:
       - .:/app
     ports:
       - "${UVICORN_SERVER__PORT}:${UVICORN_SERVER__PORT}"
-    restart: on-failure
 
+  db:
+    image: postgres:17.4
+    environment:
+      - POSTGRES_USER=${POSTGRESQL__USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRESQL__PASSWORD}
+      - POSTGRES_DB=${POSTGRESQL__DATABASE}
+      - PGPORT=${POSTGRESQL__PORT}
+    ports:
+      - "${POSTGRESQL__PORT}:${POSTGRESQL__PORT}"
+    volumes:
+      - file-manager-postgres_data:/var/lib/postgresql/data
+  
+  minio:
+    image: bitnami/minio:2024.5.1
+    environment:
+      MINIO_ROOT_USER: "${S3__ROOT_USER}"
+      MINIO_ROOT_PASSWORD: "${S3__ROOT_PASSWORD}"
+      MINIO_API_PORT_NUMBER: "${S3__API_PORT_NUMBER}"
+      MINIO_CONSOLE_PORT_NUMBER: "${S3__CONSOLE_PORT_NUMBER}"
+    ports:
+      - "${S3__API_PORT_NUMBER}:${S3__API_PORT_NUMBER}"
+      - "${S3__CONSOLE_PORT_NUMBER}:${S3__CONSOLE_PORT_NUMBER}"
+    volumes:
+      - file-manager-minio-data:/bitnami/minio/data
+
+volumes:
+  file-manager-postgres_data:
+  file-manager-minio-data:
