@@ -7,3 +7,4 @@ from src.manager.schemas.s3_schema import S3Schema  # noqa
 from src.manager.schemas.max_size_schema import MaxSizeSchema  # noqa
 from src.manager.schemas.allowable_extensions import AllowableExtenstionSchema  # noqa
 from src.manager.schemas.endpoint_schema import EndpointSchema  # noqa
+from src.manager.schemas.cors_schema import CORSSchema  # noqa

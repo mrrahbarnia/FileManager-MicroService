@@ -25,6 +25,7 @@ class _ENVS(BaseModel):
         schemas.AllowableExtenstionSchema()
     )  # type: ignore
     ENDPOINT: schemas.EndpointSchema = schemas.EndpointSchema()  # type: ignore
+    CORS: schemas.CORSSchema = schemas.CORSSchema()  # type: ignore
 
 
 @lru_cache
